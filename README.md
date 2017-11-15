@@ -1,5 +1,6 @@
-# EIP 672 Library implementation
+# EIP 672
 
+EIP 672 Ens Pseudo-Introspection for solidity implementation
 
 
 
