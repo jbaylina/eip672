@@ -13,6 +13,7 @@ interface IENS {
 }
 
 interface IReverseRegistrar {
+    function defaultResolver() public constant returns (address);
     function claimWithResolver(address _owner, address _resolver) public returns (bytes32 node);
 }
 
@@ -51,9 +52,11 @@ contract EIP672 {
       IPublicResolver resolver = IPublicResolver(ens.resolver(PUBLICRESOLVE_ROOT_NODE));
       IPublicResolver publicResolver = IPublicResolver(resolver.addr(PUBLICRESOLVE_ROOT_NODE));
 
+      // Claim root node with reverse resolver, subnodes with public resolver, to preserve
+      // the ability to use ENS reverse resolution.
       reverseRegistrar.claimWithResolver(
         address(this),
-        address(publicResolver));
+        reverseRegistrar.defaultResolver());
     }
 
     function setInterfaceImplementation(string ifaceLabel, address impl) internal {
@@ -77,6 +80,18 @@ contract EIP672 {
         IPublicResolver resolver = IPublicResolver(ens.resolver(ifaceNode));
         if (address(resolver) == 0) return 0;
         return resolver.addr(ifaceNode);
+    }
+
+    // @dev Release root node ownership to another address to allow setting reverse ENS
+    // name and updating interface subnodes externally. It is up to the derived
+    // contract to determine if, when and how to call this method based on its own
+    // authentication and authorization logic.
+    // @param addr The address that will take ownership of the root node.
+    function releaseRootNodeOwnership(address addr) internal {
+        bytes32 node = rootNodeForAddress(address(this));
+        require(ens.owner(node) == address(this));
+        require(addr != address(0));
+        ens.setOwner(node, addr);
     }
 
     function rootNodeForAddress(address addr) internal constant returns (bytes32) {

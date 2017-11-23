@@ -17,6 +17,8 @@ describe('EnsPseudoIntrospection test', () => {
   let accounts;
   let implementer;
   let checker;
+  let releaser;
+  let releaserNode;
 
   before(async () => {
     testrpc = TestRPC.server({
@@ -40,6 +42,8 @@ describe('EnsPseudoIntrospection test', () => {
   it('should deploy all the contracts', async () => {
     implementer = await tr.Implementer.new(web3, { from: accounts[0], gas: 2000000 });
     checker = await tr.Checker.new(web3, { from: accounts[0], gas: 2000000 });
+    releaser = await tr.Releaser.new(web3, { from: accounts[0], gas: 2000000 });
+    releaserNode = await releaser.rootNode();
     assert.ok(implementer.$address);
     assert.ok(checker.$address);
   }).timeout(20000);
@@ -53,5 +57,18 @@ describe('EnsPseudoIntrospection test', () => {
 
     const IEaxampleAddr2 = await ensSimulator.getProxyInterface(ens, implementer.$address, 'IExample');
     assert.equal(IEaxampleAddr2, IEaxampleAddr2);
+  }).timeout(6000);
+
+  it('should release root node ownership', async () => {
+    const OwnerAddr = await ens.owner(releaserNode);
+    assert.equal(OwnerAddr, accounts[0]);
+  }).timeout(6000);
+
+  it('should check implemntation after releasing root node ownership', async () => {
+    const IExampleAddr = await checker.implements(releaser.$address, 'IExample');
+    assert.equal(IExampleAddr, releaser.$address);
+
+    const IOtherAddr = await checker.implements(releaser.$address, 'IOtherAddr');
+    assert.equal(IOtherAddr, '0x0000000000000000000000000000000000000000')
   }).timeout(6000);
 });

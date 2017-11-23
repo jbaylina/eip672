@@ -19,3 +19,13 @@ contract Checker is EIP672 {
         return interfaceAddr(a, iFace);
     }
 }
+
+contract Releaser is Implementer {
+    function Releaser() public {
+        releaseRootNodeOwnership(msg.sender);
+    }
+
+    function rootNode() constant returns (bytes32) {
+        return rootNodeForAddress(address(this));
+    }
+}
