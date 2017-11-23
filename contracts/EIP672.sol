@@ -52,9 +52,6 @@ contract EIP672 {
 
       IReverseRegistrar reverseRegistrar = IReverseRegistrar(ens.owner(REVERSE_ROOT_NODE));
 
-      IPublicResolver resolver = IPublicResolver(ens.resolver(PUBLICRESOLVE_ROOT_NODE));
-      IPublicResolver publicResolver = IPublicResolver(resolver.addr(PUBLICRESOLVE_ROOT_NODE));
-
       // Claim root node with reverse resolver, subnodes with public resolver, to preserve
       // the ability to use ENS reverse resolution.
       reverseRegistrar.claimWithResolver(

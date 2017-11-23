@@ -1,6 +1,6 @@
 {
   "name": "eip672",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "EIP 672 - ReverseENS Pseudo-introspaection helper library",
   "main": "index.js",
   "directories": {
