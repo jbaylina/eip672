@@ -79,4 +79,12 @@ describe('EnsPseudoIntrospection test', () => {
     const IOtherAddr = await checker.implements(releaser.$address, 'IOtherAddr');
     assert.equal(IOtherAddr, '0x0000000000000000000000000000000000000000')
   }).timeout(6000);
+
+  it('should allow new root node owner to set reverse ens name', async () => {
+    const resolverAddress = await ens.resolver(releaserNode);
+    const resolver = new tr.IReverseResolver(web3, resolverAddress);
+    await resolver.setName(releaserNode, 'example.eth')
+    const name = await ensSimulator.getName(ens, releaser.$address);
+    assert.equal(name, 'example.eth');
+  }).timeout(6000);
 });

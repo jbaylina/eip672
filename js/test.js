@@ -10,3 +10,5 @@ module.exports.Releaser = generateClass(
     tr.ReleaserAbi, tr.ReleaserByteCode);
 module.exports.NameSetter = generateClass(
     tr.NameSetterAbi, tr.NameSetterByteCode);
+module.exports.IReverseResolver = generateClass(
+  tr.IReverseResolverAbi, tr.IReverseResolverByteCode)
