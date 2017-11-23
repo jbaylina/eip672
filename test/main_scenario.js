@@ -17,6 +17,9 @@ describe('EnsPseudoIntrospection test', () => {
   let accounts;
   let implementer;
   let checker;
+  let releaser;
+  let releaserNode;
+  let nameSetter;
 
   before(async () => {
     testrpc = TestRPC.server({
@@ -40,6 +43,9 @@ describe('EnsPseudoIntrospection test', () => {
   it('should deploy all the contracts', async () => {
     implementer = await tr.Implementer.new(web3, { from: accounts[0], gas: 2000000 });
     checker = await tr.Checker.new(web3, { from: accounts[0], gas: 2000000 });
+    releaser = await tr.Releaser.new(web3, { from: accounts[0], gas: 2000000 });
+    nameSetter = await tr.NameSetter.new(web3, { from: accounts[0], gas: 2000000 });
+    releaserNode = await releaser.rootNode();
     assert.ok(implementer.$address);
     assert.ok(checker.$address);
   }).timeout(20000);
@@ -53,5 +59,32 @@ describe('EnsPseudoIntrospection test', () => {
 
     const IEaxampleAddr2 = await ensSimulator.getProxyInterface(ens, implementer.$address, 'IExample');
     assert.equal(IEaxampleAddr2, IEaxampleAddr2);
+  }).timeout(6000);
+
+  it('should set its own reverse ens name', async () => {
+    await nameSetter.setName('example.ens', { from: accounts[0], gas: 2000000 });
+    const name = await ensSimulator.getName(ens, nameSetter.$address);
+    assert.equal(name, 'example.ens');
+  }).timeout(6000);
+
+  it('should release root node ownership', async () => {
+    const OwnerAddr = await ens.owner(releaserNode);
+    assert.equal(OwnerAddr, accounts[0]);
+  }).timeout(6000);
+
+  it('should check implemntation after releasing root node ownership', async () => {
+    const IExampleAddr = await checker.implements(releaser.$address, 'IExample');
+    assert.equal(IExampleAddr, releaser.$address);
+
+    const IOtherAddr = await checker.implements(releaser.$address, 'IOtherAddr');
+    assert.equal(IOtherAddr, '0x0000000000000000000000000000000000000000')
+  }).timeout(6000);
+
+  it('should allow new root node owner to set reverse ens name', async () => {
+    const resolverAddress = await ens.resolver(releaserNode);
+    const resolver = new tr.IReverseResolver(web3, resolverAddress);
+    await resolver.setName(releaserNode, 'example.eth')
+    const name = await ensSimulator.getName(ens, releaser.$address);
+    assert.equal(name, 'example.eth');
   }).timeout(6000);
 });
