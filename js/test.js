@@ -8,3 +8,5 @@ module.exports.Checker = generateClass(
     tr.CheckerAbi, tr.CheckerByteCode);
 module.exports.Releaser = generateClass(
     tr.ReleaserAbi, tr.ReleaserByteCode);
+module.exports.NameSetter = generateClass(
+    tr.NameSetterAbi, tr.NameSetterByteCode);

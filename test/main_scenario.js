@@ -19,6 +19,7 @@ describe('EnsPseudoIntrospection test', () => {
   let checker;
   let releaser;
   let releaserNode;
+  let nameSetter;
 
   before(async () => {
     testrpc = TestRPC.server({
@@ -43,6 +44,7 @@ describe('EnsPseudoIntrospection test', () => {
     implementer = await tr.Implementer.new(web3, { from: accounts[0], gas: 2000000 });
     checker = await tr.Checker.new(web3, { from: accounts[0], gas: 2000000 });
     releaser = await tr.Releaser.new(web3, { from: accounts[0], gas: 2000000 });
+    nameSetter = await tr.NameSetter.new(web3, { from: accounts[0], gas: 2000000 });
     releaserNode = await releaser.rootNode();
     assert.ok(implementer.$address);
     assert.ok(checker.$address);
@@ -57,6 +59,12 @@ describe('EnsPseudoIntrospection test', () => {
 
     const IEaxampleAddr2 = await ensSimulator.getProxyInterface(ens, implementer.$address, 'IExample');
     assert.equal(IEaxampleAddr2, IEaxampleAddr2);
+  }).timeout(6000);
+
+  it('should set its own reverse ens name', async () => {
+    await nameSetter.setName('example.ens', { from: accounts[0], gas: 2000000 });
+    const name = await ensSimulator.getName(ens, nameSetter.$address);
+    assert.equal(name, 'example.ens');
   }).timeout(6000);
 
   it('should release root node ownership', async () => {

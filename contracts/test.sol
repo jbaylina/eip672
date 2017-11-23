@@ -29,3 +29,9 @@ contract Releaser is Implementer {
         return rootNodeForAddress(address(this));
     }
 }
+
+contract NameSetter is EIP672 {
+    function setName(string _name) {
+        setReverseName(_name);
+    }
+}
